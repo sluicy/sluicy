@@ -49,9 +49,13 @@ pnpm db:up          # Postgres in Docker
 pnpm dev            # api on :8787, web on :5173, worker
 ```
 
-Other scripts: `pnpm typecheck`, `pnpm build`, `pnpm --filter @sluicy/db db:generate` (new migration from the schema), `pnpm --filter @sluicy/db db:migrate` (apply migrations to `DATABASE_URL`).
+Other scripts: `pnpm typecheck`, `pnpm build`, `pnpm test` (the API's tests need the Docker Postgres; they create and migrate a `sluicy_test` database), `pnpm --filter @sluicy/db db:generate` (new migration from the schema), `pnpm --filter @sluicy/db db:migrate` (apply migrations to `DATABASE_URL`).
 
 The landing page is served by the API at `http://localhost:8787/`. Its waitlist form writes to the `waitlist` table, so run the migration first; without a database the form explains that it is not connected.
+
+### Signing in
+
+The signed-in app lives at `APP_URL` (`app.sluicy.dev` in production, `http://localhost:5173` in dev, where Vite proxies the API). Sign-in is magic link only: open `/sign-in`, enter an email, and follow the link. With no `SMTP_URL` or `RESEND_API_KEY` set, the dev server prints the link to its console instead. The first sign-in on an instance creates the owner Account; after that `REGISTRATION=closed` (the default) only lets existing Accounts in, and `REGISTRATION=open` lets anyone sign up. See `.env.example`.
 
 ## Hosting
 
@@ -66,7 +70,7 @@ pnpm --filter @sluicy/api landing:deploy             # live on <name>.workers.de
 
 Later pushes deploy automatically through `.github/workflows/deploy-landing.yml` once the `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` secrets and the `LANDING_DEPLOY_ENABLED=true` variable are set on the repository. `pnpm --filter @sluicy/api landing:export` dumps the waitlist for the move to Postgres.
 
-**Later (the app):** one Hetzner server with Coolify running the API, worker, web app and Postgres from this repo's Docker image. Details in [SPEC.md](./SPEC.md#10-architecture).
+**Later (the app):** one Hetzner server with Coolify running the API, worker, web app and Postgres from this repo's Docker image. The API serves the built web app from `WEB_DIST` at `app.sluicy.dev`, so the sign-in pages, the JSON API and the SPA share one origin and one session cookie. Details in [SPEC.md](./SPEC.md#10-architecture).
 
 ## Self-hosting
 

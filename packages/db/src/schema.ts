@@ -5,6 +5,8 @@ import { pgTable, text, timestamp, uuid, integer, jsonb, boolean } from "drizzle
 export const accounts = pgTable("accounts", {
   id: uuid("id").primaryKey().defaultRandom(),
   email: text("email").notNull().unique(),
+  /** The first Account created on an instance. Self-host: owner administers the instance (SPEC 10). */
+  isOwner: boolean("is_owner").notNull().default(false),
   reportingCurrency: text("reporting_currency").notNull().default("USD"),
   timezone: text("timezone").notNull().default("UTC"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
@@ -71,6 +73,23 @@ export const revenueEvents = pgTable("revenue_events", {
   amountMinor: integer("amount_minor").notNull(),
   currency: text("currency").notNull(),
   occurredAt: timestamp("occurred_at", { withTimezone: true }).notNull(),
+});
+
+/** One-time sign-in tokens. Sign-in is magic link only (SPEC 10). Only the SHA-256 of the token is stored. */
+export const magicLinks = pgTable("magic_links", {
+  tokenHash: text("token_hash").primaryKey(),
+  email: text("email").notNull(),
+  expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+  consumedAt: timestamp("consumed_at", { withTimezone: true }),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+/** Browser sessions for the signed-in app. The cookie carries the raw id; the table stores its SHA-256. */
+export const sessions = pgTable("sessions", {
+  idHash: text("id_hash").primaryKey(),
+  accountId: uuid("account_id").notNull().references(() => accounts.id, { onDelete: "cascade" }),
+  expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
 /** Pre-launch waitlist, written by the landing page at "/". Keyed by email so repeat signups do not duplicate. */

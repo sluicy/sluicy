@@ -44,7 +44,7 @@ const Waitlist: FC<{ state: WaitlistState; id: string; email?: string }> = ({ st
   );
 };
 
-export const LandingPage: FC<{ state: WaitlistState; email?: string }> = ({ state, email }) => (
+export const LandingPage: FC<{ state: WaitlistState; email?: string; appUrl: string }> = ({ state, email, appUrl }) => (
   <html lang="en">
     <head>
       <meta charset="utf-8" />
@@ -69,6 +69,7 @@ export const LandingPage: FC<{ state: WaitlistState; email?: string }> = ({ stat
             <a href="#how">How it works</a>
             <a href="https://github.com/sluicy/sluicy">GitHub</a>
             <a href="#facts">Pricing</a>
+            <a class="nav-signin" href={`${appUrl}/sign-in`}>Sign in</a>
             <a class="btn btn-accent" href="#join" style="height:42px">Get early access</a>
           </nav>
         </header>

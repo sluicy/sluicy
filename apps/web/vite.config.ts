@@ -5,6 +5,7 @@ export default defineConfig({
   plugins: [react()],
   server: {
     port: Number(process.env.WEB_PORT ?? 5173),
-    proxy: { "/v1": "http://localhost:8787", "/health": "http://localhost:8787" },
+    // Everything the API owns at the app origin: JSON, health and the server-rendered sign-in pages.
+    proxy: Object.fromEntries(["/v1", "/health", "/sign-in", "/sign-out"].map((p) => [p, "http://localhost:8787"])),
   },
 });

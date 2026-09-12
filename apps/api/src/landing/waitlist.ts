@@ -1,11 +1,5 @@
-import { createDb, waitlist } from "@sluicy/db";
-
-let db: ReturnType<typeof createDb> | null | undefined;
-
-function getDb() {
-  if (db === undefined) db = process.env.DATABASE_URL ? createDb() : null;
-  return db;
-}
+import { waitlist } from "@sluicy/db";
+import { getDb } from "../db.js";
 
 export async function joinWaitlist(input: { email: string; form: string; referrer: string }): Promise<{ ok: true } | { ok: false; message: string }> {
   const conn = getDb();

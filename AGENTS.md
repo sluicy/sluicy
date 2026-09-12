@@ -1,0 +1,43 @@
+# Sluicy
+
+Open-source (AGPL-3.0) growth analytics for founders who market with content. It tracks link → visit → signup → Stripe revenue, learns which content pays, and produces a Weekly Page of what to repeat, test and stop. Pre-alpha: the spec is done, the code is a scaffold.
+
+Read before changing behaviour:
+
+- `README.md` for the architecture table, dev commands and hosting.
+- `CONTEXT.md` for the domain vocabulary. Use those exact terms (Account, Product, Visitor, Piece, Placement, Link, Touch, Cluster, Weekly Page) in code, comments and tests. Each entry lists words to avoid.
+- `SPEC.md` for scope and the deliberate non-goals. Sluicy is not a scheduler, not product analytics, not an AI ghostwriter.
+- `docs/adr/` for decisions that are hard to reverse. Propose a new ADR before changing one.
+
+## Hard rules
+
+- TypeScript strict everywhere; `tsconfig.base.json` is the single source of compiler options.
+- Event tables are read and written only through `packages/storage`.
+- Postgres is the only required service. Background work goes through pg-boss, never Redis or a separate queue.
+- The browser snippet in `packages/sdk` stays under 5 KB.
+- Hosted and self-hosted run the same image; a feature that only works hosted is a spec change, not a code change.
+
+## Code structure
+
+**Modules.** Organise by feature, not by layer. A module is one folder that holds everything for one concern: routes, page, styles, data access, tests. `apps/api/src/landing/` is the template: `routes.tsx`, `page.tsx`, `styles.ts`, `waitlist.ts` side by side. A new concern (links, collector, weekly page) gets its own folder in the same shape. A module exports one small surface from its index; other modules use that surface and nothing inside.
+
+**Co-location.** Put code next to the only code that uses it. A helper used by one route lives in that route's module. Promote to a shared package only when a second module needs it, and only then.
+
+**Simplicity.** Solve the case in front of you. Add abstraction, configuration, generics or indirection when a second concrete use exists, not before. Prefer a plain function over a class, a plain object over a builder, an inline expression over a one-line helper. When two implementations would work, choose the one with fewer moving parts.
+
+**Single source of truth.** Each rule, constant, type and query lives in exactly one place. Before writing something, search for it; extend what exists. Types come from the Drizzle schema in `packages/db`, never hand-copied.
+
+**Naming.** Files and folders are lowercase-kebab, named after the domain term they hold. A reader should find the Weekly Page code by looking for `weekly-page`.
+
+## Testing (backend: `apps/api`, `apps/worker`, `packages/*`)
+
+Test runner is Vitest, added to a package the first time it gets a test. Tests live beside the code they test as `<name>.test.ts`, inside the module.
+
+- **Unit tests** for pure logic: attribution windows, cluster maths, reconciliation rules, brief generation. Inputs in, outputs out, no database.
+- **Integration tests** for anything that touches Postgres, Hono routes or pg-boss jobs. Run against the real Postgres from `docker compose`, on a schema created by the Drizzle migrations. Exercise the module through its public surface: send the HTTP request, run the job, then read the database.
+
+A test earns its place by pinning behaviour a reader could get wrong: a boundary, a business rule from `SPEC.md`, a bug that was fixed. Name it after the behaviour (`attributes signup to last touch inside the window`). Skip tests that restate the implementation, check a mock was called, or assert a type the compiler already checks. Every rule in the spec that the code implements has one test that fails when the rule breaks.
+
+## Before finishing
+
+Run `pnpm typecheck` and the tests for every package you touched. CI runs typecheck and build on every push; a change that passes locally but skips a test is not done.
