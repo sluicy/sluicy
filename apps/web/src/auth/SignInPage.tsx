@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from "react";
 import { Link, useSearchParams } from "react-router";
-import { requestSignIn, type VerifyError } from "./api.js";
+import { api, type VerifyError } from "../api/client.js";
 
 const verifyMessages: Record<VerifyError, string> = {
   invalid: "That link isn't valid. Request a new one.",
@@ -14,26 +14,24 @@ export function SignInPage() {
   const [params] = useSearchParams();
   const linkError = params.get("error") as VerifyError | null;
   const [email, setEmail] = useState("");
-  const [state, setState] = useState<{ kind: "idle" | "sending" | "sent" } | { kind: "error"; message: string }>(
-    linkError && linkError in verifyMessages ? { kind: "error", message: verifyMessages[linkError] } : { kind: "idle" },
-  );
+  const signIn = api.useMutation("post", "/v1/auth/sign-in");
 
-  async function submit(e: FormEvent) {
+  function submit(e: FormEvent) {
     e.preventDefault();
-    setState({ kind: "sending" });
-    try {
-      await requestSignIn(email.trim().toLowerCase());
-      setState({ kind: "sent" });
-    } catch (err) {
-      setState({ kind: "error", message: err instanceof Error ? err.message : "Something went wrong." });
-    }
+    signIn.mutate({ body: { email: email.trim().toLowerCase() } });
   }
+
+  const error = signIn.isError
+    ? "That email doesn't look right, or the mail couldn't be sent. Check it and try again."
+    : linkError && linkError in verifyMessages && signIn.isIdle
+      ? verifyMessages[linkError]
+      : null;
 
   return (
     <main className="auth">
       <Link className="wordmark" to="/">Sluicy</Link>
       <div className="auth-card">
-        {state.kind === "sent" ? (
+        {signIn.isSuccess ? (
           <>
             <h1>Check your email</h1>
             <div className="auth-done" aria-live="polite">
@@ -41,7 +39,7 @@ export function SignInPage() {
             </div>
             <p>
               Wrong address?{" "}
-              <button type="button" className="link" onClick={() => setState({ kind: "idle" })}>
+              <button type="button" className="link" onClick={() => signIn.reset()}>
                 Try another
               </button>
               .
@@ -63,12 +61,12 @@ export function SignInPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
               />
-              <button className="btn" type="submit" disabled={state.kind === "sending"}>
-                {state.kind === "sending" ? "Sending…" : "Email me a sign-in link"}
+              <button className="btn" type="submit" disabled={signIn.isPending}>
+                {signIn.isPending ? "Sending…" : "Email me a sign-in link"}
               </button>
-              {state.kind === "error" ? (
+              {error ? (
                 <div className="auth-err" role="alert">
-                  {state.message}
+                  {error}
                 </div>
               ) : null}
             </form>

@@ -1,22 +1,27 @@
+import { useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router";
-import { verifySignIn } from "./api.js";
+import { api } from "../api/client.js";
 
 /** Landing spot for the emailed link. Consumes the token with a POST, then hands over to the app or back to sign-in. */
 export function VerifyPage() {
   const [params] = useSearchParams();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const verify = api.useMutation("post", "/v1/auth/verify", {
+    onSuccess: (account) => {
+      queryClient.setQueryData(api.queryOptions("get", "/v1/auth/me").queryKey, account);
+      navigate("/", { replace: true });
+    },
+    onError: (err) => navigate(`/sign-in?error=${err.error}`, { replace: true }),
+  });
 
+  const token = params.get("token") ?? "";
   useEffect(() => {
-    let cancelled = false;
-    verifySignIn(params.get("token") ?? "").then((result) => {
-      if (cancelled) return;
-      navigate(result.ok ? "/" : `/sign-in?error=${result.error}`, { replace: true });
-    });
-    return () => {
-      cancelled = true;
-    };
-  }, [params, navigate]);
+    verify.mutate({ body: { token } });
+    // Runs once per token; the mutation object changes identity every render and must not retrigger.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [token]);
 
   return (
     <main className="auth">

@@ -16,6 +16,7 @@ Read before changing behaviour:
 - Postgres is the only required service. Background work goes through pg-boss, never Redis or a separate queue.
 - The browser snippet in `packages/sdk` stays under 5 KB.
 - Hosted and self-hosted run the same image; a feature that only works hosted is a spec change, not a code change.
+- The REST API is defined once, as `@hono/zod-openapi` routes in `apps/api`. Its OpenAPI document is committed at `apps/api/openapi.json` and the web app talks to it only through the generated `apps/web/src/api/schema.ts` with openapi-fetch and react-query (`apps/web/src/api/client.ts`). After changing a route, run `pnpm api:schema`; CI fails on drift. No hand-written fetch calls in `apps/web`.
 
 ## Code structure
 

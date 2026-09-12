@@ -1,4 +1,5 @@
 import { Hono } from "hono";
+import { OpenAPIHono } from "@hono/zod-openapi";
 import { logger } from "hono/logger";
 import { serveStatic } from "@hono/node-server/serve-static";
 import type { Db } from "@sluicy/db";
@@ -12,7 +13,7 @@ export type AppDeps = { config: Config; db: Db | null; mailer: Mailer };
 
 /** Builds the API. Dependencies are injected so tests can pass a test database and a capturing mailer. */
 export function createApp({ config, db, mailer }: AppDeps) {
-  const app = new Hono();
+  const app = new OpenAPIHono();
   app.use(logger());
 
   app.get("/health", (c) => c.json({ ok: true, service: "sluicy-api" }));
@@ -31,6 +32,9 @@ export function createApp({ config, db, mailer }: AppDeps) {
   } else {
     app.all("/v1/auth/*", (c) => c.json({ error: "no_database" }, 503));
   }
+
+  // The REST API's contract. apps/web generates its client types from it (pnpm api:schema).
+  app.doc("/v1/openapi.json", { openapi: "3.1.0", info: { title: "Sluicy API", version: "1" } });
 
   // Landing page and waitlist, server-rendered with Hono JSX. In production the landing runs as a Cloudflare Worker (src/worker.ts).
   app.route("/", createLanding(joinWaitlist, { appUrl: config.appUrl }));

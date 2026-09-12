@@ -1,12 +1,18 @@
-import { signOut, useAccount } from "./auth/index.js";
+import { useQueryClient } from "@tanstack/react-query";
+import { useNavigate } from "react-router";
+import { api } from "./api/client.js";
+import { useAccount } from "./auth/index.js";
 
 export function Home() {
   const account = useAccount();
-
-  async function onSignOut() {
-    await signOut();
-    window.location.assign("/sign-in");
-  }
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const signOut = api.useMutation("post", "/v1/auth/sign-out", {
+    onSuccess: () => {
+      queryClient.clear();
+      navigate("/sign-in", { replace: true });
+    },
+  });
 
   return (
     <main className="page">
@@ -15,7 +21,7 @@ export function Home() {
         <span className="who">
           {account.email}
           {account.isOwner ? " · owner" : ""}
-          <button type="button" className="link" onClick={onSignOut}>
+          <button type="button" className="link" onClick={() => signOut.mutate({})} disabled={signOut.isPending}>
             Sign out
           </button>
         </span>

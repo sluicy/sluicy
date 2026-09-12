@@ -49,13 +49,13 @@ pnpm db:up          # Postgres in Docker
 pnpm dev            # api on :8787, web on :5173, worker
 ```
 
-Other scripts: `pnpm typecheck`, `pnpm build`, `pnpm test` (the API's tests need the Docker Postgres; they create and migrate a `sluicy_test` database), `pnpm --filter @sluicy/db db:generate` (new migration from the schema), `pnpm --filter @sluicy/db db:migrate` (apply migrations to `DATABASE_URL`).
+Other scripts: `pnpm typecheck`, `pnpm build`, `pnpm api:schema` (regenerate `apps/api/openapi.json` and the web client types after changing API routes), `pnpm test` (the API's tests need the Docker Postgres; they create and migrate a `sluicy_test` database), `pnpm --filter @sluicy/db db:generate` (new migration from the schema), `pnpm --filter @sluicy/db db:migrate` (apply migrations to `DATABASE_URL`).
 
 The landing page is served by the API at `http://localhost:8787/`. Its waitlist form writes to the `waitlist` table, so run the migration first; without a database the form explains that it is not connected.
 
 ### Signing in
 
-The signed-in app lives at `APP_URL` (`app.sluicy.dev` in production, `http://localhost:5173` in dev, where Vite proxies `/v1` to the API). Sign-in is magic link only: the React page at `/sign-in` posts to `/v1/auth/sign-in`, the emailed link opens `/sign-in/verify`, which consumes the token with a POST so mail scanners cannot burn it. With no `SMTP_URL` or `RESEND_API_KEY` set, the dev server prints the link to its console instead. The first sign-in on an instance creates the owner Account; after that `REGISTRATION=closed` (the default) only lets existing Accounts in, and `REGISTRATION=open` lets anyone sign up. See `.env.example`.
+The signed-in app lives at `APP_URL` (`app.sluicy.dev` in production, `http://localhost:5173` in dev, where Vite proxies `/v1` to the API). Sign-in is magic link only: the React page at `/sign-in` posts to `/v1/auth/sign-in`, the emailed link opens `/sign-in/verify`, which consumes the token with a POST so mail scanners cannot burn it. The API describes itself at `/v1/openapi.json`. With no `SMTP_URL` or `RESEND_API_KEY` set, the dev server prints the link to its console instead. The first sign-in on an instance creates the owner Account; after that `REGISTRATION=closed` (the default) only lets existing Accounts in, and `REGISTRATION=open` lets anyone sign up. See `.env.example`.
 
 ## Hosting
 

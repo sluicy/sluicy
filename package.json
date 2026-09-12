@@ -15,7 +15,8 @@
     "lint": "pnpm -r lint",
     "test": "pnpm -r test",
     "db:up": "docker compose up -d postgres",
-    "db:down": "docker compose down"
+    "db:down": "docker compose down",
+    "api:schema": "pnpm --filter @sluicy/api openapi:export && pnpm --filter @sluicy/web api:types"
   },
   "devDependencies": {
     "typescript": "^5.9.2"
