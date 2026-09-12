@@ -3,7 +3,7 @@ import { logger } from "hono/logger";
 import { serveStatic } from "@hono/node-server/serve-static";
 import type { Db } from "@sluicy/db";
 import type { Config } from "./config.js";
-import { createAuthRoutes, createAuthService, requireSession, type Mailer } from "./auth/index.js";
+import { createAuthRoutes, createAuthService, type Mailer } from "./auth/index.js";
 import { publicPages } from "./public-pages.js";
 import { createLanding } from "./landing/routes.js";
 import { joinWaitlist } from "./landing/waitlist.js";
@@ -24,16 +24,12 @@ export function createApp({ config, db, mailer }: AppDeps) {
     app.get("/assets/*", serveStatic({ root: config.webDist }));
   }
 
+  // Sign-in for the React app. Without a database every auth call answers 503 and the app explains.
   if (db) {
     const auth = createAuthService({ db, mailer, appUrl: config.appUrl, registration: config.registration });
-    app.route("/", createAuthRoutes(auth, { secureCookies: config.production }));
-    app.get("/v1/me", requireSession(auth), (c) => {
-      const { id, email, isOwner } = c.var.account;
-      return c.json({ id, email, isOwner });
-    });
+    app.route("/v1/auth", createAuthRoutes(auth, { secureCookies: config.production }));
   } else {
-    app.get("/sign-in", (c) => c.text("Sign-in needs a database. Set DATABASE_URL and run the migrations.", 503));
-    app.get("/v1/me", (c) => c.json({ error: "unauthorized" }, 401));
+    app.all("/v1/auth/*", (c) => c.json({ error: "no_database" }, 503));
   }
 
   // Landing page and waitlist, server-rendered with Hono JSX. In production the landing runs as a Cloudflare Worker (src/worker.ts).

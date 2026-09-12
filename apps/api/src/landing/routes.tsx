@@ -1,6 +1,6 @@
 import { Hono } from "hono";
 import { LandingPage, type WaitlistState } from "./page.js";
-import { isEmail, normalizeEmail } from "../ui/email.js";
+import { isEmail, normalizeEmail } from "../email.js";
 
 export type JoinWaitlist = (input: { email: string; form: string; referrer: string }) => Promise<{ ok: true } | { ok: false; message: string }>;
 

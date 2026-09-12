@@ -1,8 +1,23 @@
-// Landing page styles on top of the shared tokens in ../ui/styles.ts.
-import { baseCss } from "../ui/styles.js";
-
-export const landingCss = baseCss + `
+// Landing page styles. Tokens follow the approved design (cool near-black, electric blue).
+export const landingCss = `
+:root{--bg:#0A0D12;--panel:#12161E;--line:#232A36;--line-2:#2F3947;--ink:#EEF2F7;--muted:#A3ADBD;--dim:#7D8797;--accent:#4D8DFF;--on-accent:#061029;--stop:#F0705A}
+*{box-sizing:border-box}
+html{color-scheme:dark}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Manrope","Helvetica Neue",Arial,sans-serif;font-size:17px;line-height:1.5;-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none}
+.display{font-family:"Syne","Arial Black",Arial,sans-serif;letter-spacing:-.02em}
+.mono{font-family:"JetBrains Mono",Menlo,Consolas,monospace;font-variant-numeric:tabular-nums}
 .wrap{max-width:1200px;margin:0 auto;padding-inline:24px}
+.label{font-family:"JetBrains Mono",Menlo,monospace;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent)}
+.btn{display:inline-flex;align-items:center;justify-content:center;height:52px;padding:0 24px;border-radius:999px;font-weight:700;font-size:15px;white-space:nowrap;border:0;cursor:pointer;font-family:inherit}
+.btn-accent{background:var(--accent);color:var(--on-accent)}
+.btn-accent:hover{background:#6AA0FF}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:16px}
+.ui{background:var(--bg);border:1px solid var(--line);border-radius:10px}
+.chip{display:inline-flex;align-items:center;gap:8px;height:26px;padding:0 10px;border-radius:999px;font-family:"JetBrains Mono",Menlo,monospace;font-size:11.5px}
+.chip-line{border:1px solid var(--line-2);color:var(--muted)}
+.chip-fill{background:var(--line);color:var(--muted)}
+.chip-accent{background:var(--accent);color:var(--on-accent)}
 .page{position:relative;overflow:hidden}
 .noise{position:absolute;inset:0;opacity:.06;pointer-events:none;background-image:radial-gradient(#fff .6px,transparent .6px);background-size:3px 3px}
 .glow{position:absolute;left:50%;top:-300px;width:1100px;max-width:100vw;height:700px;transform:translateX(-50%);background:radial-gradient(ellipse at center,rgba(77,141,255,.24) 0%,rgba(77,141,255,0) 60%);pointer-events:none}
@@ -88,7 +103,7 @@ export const landingCss = baseCss + `
   .facts-grid{grid-template-columns:1fr;gap:28px}
 }
 @media (max-width:700px){
-  .nav-links a:not(.btn):not(.nav-signin){display:none}
+  .nav-links a:not(.btn){display:none}
   .hero{padding:56px 0 40px}
   .hero p{font-size:18px}
   .wl-row{flex-direction:column}

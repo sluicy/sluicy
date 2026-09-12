@@ -5,7 +5,7 @@ import { readConfig } from "../config.js";
 import type { Mail } from "./mailer.js";
 import { testDb } from "../test/db.js";
 
-/** End-to-end through HTTP: request a link, click it, read /v1/me, sign out. Runs against the real migrated Postgres. */
+/** Through HTTP, the way the React app calls it: request a link, verify its token, read /me, sign out. Real migrated Postgres. */
 describe("magic-link sign-in", () => {
   let handle: Awaited<ReturnType<typeof testDb>>;
   const sent: Mail[] = [];
@@ -24,93 +24,96 @@ describe("magic-link sign-in", () => {
     app = build("closed");
   });
 
-  const requestLink = (email: string) =>
-    app.request("/sign-in", { method: "POST", body: new URLSearchParams({ email }), headers: { "content-type": "application/x-www-form-urlencoded" } });
-  const linkFromMail = () => {
+  const json = (path: string, body: unknown, headers: Record<string, string> = {}) =>
+    app.request(path, { method: "POST", body: JSON.stringify(body), headers: { "content-type": "application/json", ...headers } });
+  const requestLink = (email: string) => json("/v1/auth/sign-in", { email });
+  const tokenFromMail = () => {
     const url = sent.at(-1)?.text.match(/https?:\/\/\S+/)?.[0];
     if (!url) throw new Error("no link in mail");
-    return new URL(url);
+    const link = new URL(url);
+    expect(link.origin + link.pathname).toBe("http://app.test/sign-in/verify");
+    return link.searchParams.get("token") ?? "";
   };
-  const clickLink = (url: URL) => app.request(url.pathname + url.search);
+  const verify = (token: string) => json("/v1/auth/verify", { token });
   const cookieFrom = (res: Response) => res.headers.get("set-cookie")?.split(";")[0] ?? "";
+  const signInAs = async (email: string) => {
+    await requestLink(email);
+    return cookieFrom(await verify(tokenFromMail()));
+  };
 
   it("first sign-in on an empty instance creates the owner Account and a session cookie", async () => {
     const res = await requestLink("founder@example.com");
-    expect(res.status).toBe(200);
+    expect(res.status).toBe(202);
     expect(sent).toHaveLength(1);
     expect(sent[0]?.to).toBe("founder@example.com");
 
-    const link = linkFromMail();
-    expect(link.origin).toBe("http://app.test");
-    const verified = await clickLink(link);
-    expect(verified.status).toBe(303);
-    expect(verified.headers.get("location")).toBe("/");
-    const cookie = cookieFrom(verified);
-    expect(cookie).toMatch(/^sluicy_session=/);
-    expect(verified.headers.get("set-cookie")).toContain("HttpOnly");
+    const verified = await verify(tokenFromMail());
+    expect(verified.status).toBe(200);
+    expect(await verified.json()).toMatchObject({ email: "founder@example.com", isOwner: true });
+    const setCookie = verified.headers.get("set-cookie") ?? "";
+    expect(setCookie).toMatch(/^sluicy_session=/);
+    expect(setCookie).toContain("HttpOnly");
 
-    const me = await app.request("/v1/me", { headers: { cookie } });
+    const me = await app.request("/v1/auth/me", { headers: { cookie: cookieFrom(verified) } });
     expect(me.status).toBe(200);
     expect(await me.json()).toMatchObject({ email: "founder@example.com", isOwner: true });
   });
 
-  it("with registration closed, an unknown email gets the same page but no mail and no Account", async () => {
-    await requestLink("founder@example.com");
-    await clickLink(linkFromMail());
-    sent.length = 0;
+  it("rejects a malformed email with 400 and sends nothing", async () => {
+    const res = await requestLink("not-an-email");
+    expect(res.status).toBe(400);
+    expect(sent).toHaveLength(0);
+  });
 
+  it("with registration closed, an unknown email gets the same 202 but no mail and no Account", async () => {
+    await signInAs("founder@example.com");
+    sent.length = 0;
     const res = await requestLink("stranger@example.com");
-    expect(res.status).toBe(200);
-    expect(await res.text()).toContain("Check your email");
+    expect(res.status).toBe(202);
     expect(sent).toHaveLength(0);
   });
 
   it("with registration open, a second email becomes a member, not an owner", async () => {
     app = build("open");
-    await requestLink("founder@example.com");
-    await clickLink(linkFromMail());
-    await requestLink("second@example.com");
-    const cookie = cookieFrom(await clickLink(linkFromMail()));
-    const me = await app.request("/v1/me", { headers: { cookie } });
+    await signInAs("founder@example.com");
+    const cookie = await signInAs("second@example.com");
+    const me = await app.request("/v1/auth/me", { headers: { cookie } });
     expect(await me.json()).toMatchObject({ email: "second@example.com", isOwner: false });
   });
 
-  it("a link works once; the second click is refused as used", async () => {
+  it("a token works once; the second use is refused as used", async () => {
     await requestLink("founder@example.com");
-    const link = linkFromMail();
-    await clickLink(link);
-    const again = await clickLink(link);
-    expect(again.status).toBe(303);
-    expect(again.headers.get("location")).toBe("/sign-in?error=used");
+    const token = tokenFromMail();
+    await verify(token);
+    const again = await verify(token);
+    expect(again.status).toBe(400);
+    expect(await again.json()).toEqual({ error: "used" });
   });
 
-  it("an expired link is refused", async () => {
+  it("an expired token is refused", async () => {
     await requestLink("founder@example.com");
-    const link = linkFromMail();
+    const token = tokenFromMail();
     await handle.db.execute(sql`update magic_links set expires_at = now() - interval '1 minute'`);
-    const res = await clickLink(link);
-    expect(res.headers.get("location")).toBe("/sign-in?error=expired");
+    const res = await verify(token);
+    expect(await res.json()).toEqual({ error: "expired" });
   });
 
   it("a tampered token is invalid", async () => {
-    const res = await app.request("/sign-in/verify?token=not-a-real-token");
-    expect(res.headers.get("location")).toBe("/sign-in?error=invalid");
+    const res = await verify("not-a-real-token");
+    expect(res.status).toBe(400);
+    expect(await res.json()).toEqual({ error: "invalid" });
   });
 
   it("sign-out revokes the session so the cookie stops working", async () => {
-    await requestLink("founder@example.com");
-    const cookie = cookieFrom(await clickLink(linkFromMail()));
-    const out = await app.request("/sign-out", { method: "POST", headers: { cookie } });
-    expect(out.headers.get("location")).toBe("/sign-in");
-    const me = await app.request("/v1/me", { headers: { cookie } });
+    const cookie = await signInAs("founder@example.com");
+    const out = await app.request("/v1/auth/sign-out", { method: "POST", headers: { cookie } });
+    expect(out.status).toBe(204);
+    const me = await app.request("/v1/auth/me", { headers: { cookie } });
     expect(me.status).toBe(401);
   });
 
-  it("a signed-in visitor to /sign-in is sent to the app", async () => {
-    await requestLink("founder@example.com");
-    const cookie = cookieFrom(await clickLink(linkFromMail()));
-    const res = await app.request("/sign-in", { headers: { cookie } });
-    expect(res.status).toBe(303);
-    expect(res.headers.get("location")).toBe("/");
+  it("/me without a cookie is 401", async () => {
+    const me = await app.request("/v1/auth/me");
+    expect(me.status).toBe(401);
   });
 });

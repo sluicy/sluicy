@@ -55,7 +55,7 @@ The landing page is served by the API at `http://localhost:8787/`. Its waitlist 
 
 ### Signing in
 
-The signed-in app lives at `APP_URL` (`app.sluicy.dev` in production, `http://localhost:5173` in dev, where Vite proxies the API). Sign-in is magic link only: open `/sign-in`, enter an email, and follow the link. With no `SMTP_URL` or `RESEND_API_KEY` set, the dev server prints the link to its console instead. The first sign-in on an instance creates the owner Account; after that `REGISTRATION=closed` (the default) only lets existing Accounts in, and `REGISTRATION=open` lets anyone sign up. See `.env.example`.
+The signed-in app lives at `APP_URL` (`app.sluicy.dev` in production, `http://localhost:5173` in dev, where Vite proxies `/v1` to the API). Sign-in is magic link only: the React page at `/sign-in` posts to `/v1/auth/sign-in`, the emailed link opens `/sign-in/verify`, which consumes the token with a POST so mail scanners cannot burn it. With no `SMTP_URL` or `RESEND_API_KEY` set, the dev server prints the link to its console instead. The first sign-in on an instance creates the owner Account; after that `REGISTRATION=closed` (the default) only lets existing Accounts in, and `REGISTRATION=open` lets anyone sign up. See `.env.example`.
 
 ## Hosting
 
@@ -70,7 +70,7 @@ pnpm --filter @sluicy/api landing:deploy             # live on <name>.workers.de
 
 Later pushes deploy automatically through `.github/workflows/deploy-landing.yml` once the `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` secrets and the `LANDING_DEPLOY_ENABLED=true` variable are set on the repository. `pnpm --filter @sluicy/api landing:export` dumps the waitlist for the move to Postgres.
 
-**Later (the app):** one Hetzner server with Coolify running the API, worker, web app and Postgres from this repo's Docker image. The API serves the built web app from `WEB_DIST` at `app.sluicy.dev`, so the sign-in pages, the JSON API and the SPA share one origin and one session cookie. Details in [SPEC.md](./SPEC.md#10-architecture).
+**Later (the app):** one Hetzner server with Coolify running the API, worker, web app and Postgres from this repo's Docker image. The API serves the built web app from `WEB_DIST` at `app.sluicy.dev`, so the SPA and the JSON API share one origin and one session cookie. Details in [SPEC.md](./SPEC.md#10-architecture).
 
 ## Self-hosting
 
