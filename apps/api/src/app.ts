@@ -1,7 +1,8 @@
 import { Hono } from "hono";
 import { logger } from "hono/logger";
 import { publicPages } from "./public-pages.js";
-import { landing } from "./landing/routes.js";
+import { createLanding } from "./landing/routes.js";
+import { joinWaitlist } from "./landing/waitlist.js";
 
 export const app = new Hono();
 
@@ -10,7 +11,7 @@ app.use(logger());
 app.get("/health", (c) => c.json({ ok: true, service: "sluicy-api" }));
 
 // Landing page and waitlist, server-rendered with Hono JSX (SPEC 8.7 applies the same to public pages).
-app.route("/", landing);
+app.route("/", createLanding(joinWaitlist));
 
 // v1 API. Each group is a milestone in SPEC.md section 6.1; only the shapes exist today.
 const v1 = new Hono();

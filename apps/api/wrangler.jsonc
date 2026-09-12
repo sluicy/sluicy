@@ -1,0 +1,17 @@
+{
+  // Cloudflare Worker for the pre-launch landing page and waitlist only.
+  // Deploy: pnpm --filter @sluicy/api landing:deploy   (after `wrangler login`)
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "sluicy-landing",
+  "main": "src/worker.ts",
+  "compatibility_date": "2026-09-01",
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "sluicy-waitlist",
+      // Replace with the id printed by: wrangler d1 create sluicy-waitlist
+      "database_id": "REPLACE_WITH_D1_DATABASE_ID",
+      "migrations_dir": "d1"
+    }
+  ]
+}

@@ -53,6 +53,21 @@ Other scripts: `pnpm typecheck`, `pnpm build`, `pnpm --filter @sluicy/db db:gene
 
 The landing page is served by the API at `http://localhost:8787/`. Its waitlist form writes to the `waitlist` table, so run the migration first; without a database the form explains that it is not connected.
 
+## Hosting
+
+**Now (waitlist only):** the landing page runs as a Cloudflare Worker with the waitlist in a free D1 database. Same Hono page as the Node server, different entry (`apps/api/src/worker.ts`). One-time setup, from `apps/api`:
+
+```sh
+pnpm exec wrangler login
+pnpm exec wrangler d1 create sluicy-waitlist        # paste the printed database_id into wrangler.jsonc
+pnpm --filter @sluicy/api landing:migrate            # create the table
+pnpm --filter @sluicy/api landing:deploy             # live on <name>.workers.dev; add sluicy.dev as a custom domain in the dashboard
+```
+
+Later pushes deploy automatically through `.github/workflows/deploy-landing.yml` once the `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` secrets and the `LANDING_DEPLOY_ENABLED=true` variable are set on the repository. `pnpm --filter @sluicy/api landing:export` dumps the waitlist for the move to Postgres.
+
+**Later (the app):** one Hetzner server with Coolify running the API, worker, web app and Postgres from this repo's Docker image. Details in [SPEC.md](./SPEC.md#10-architecture).
+
 ## Self-hosting
 
 One `docker compose up` with Postgres included, first signup becomes the owner, public registration off by default. Packaging lands with the first usable milestone; until then, run it from source as above.

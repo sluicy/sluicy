@@ -1,8 +1,11 @@
 import { Hono } from "hono";
 import { LandingPage, type WaitlistState } from "./page.js";
-import { joinWaitlist } from "./waitlist.js";
 
-export const landing = new Hono();
+export type JoinWaitlist = (input: { email: string; form: string; referrer: string }) => Promise<{ ok: true } | { ok: false; message: string }>;
+
+/** Landing page and waitlist routes. The writer is injected so the same page runs on Node (Postgres) and on Cloudflare Workers (D1). */
+export function createLanding(joinWaitlist: JoinWaitlist) {
+const landing = new Hono();
 
 landing.get("/", (c) => {
   const state: WaitlistState = c.req.query("joined") === "1" ? { kind: "joined" } : { kind: "idle" };
@@ -25,3 +28,6 @@ landing.post("/waitlist", async (c) => {
   }
   return c.redirect("/?joined=1", 303);
 });
+
+return landing;
+}

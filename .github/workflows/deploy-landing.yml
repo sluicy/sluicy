@@ -1,0 +1,33 @@
+name: deploy-landing
+# Deploys the pre-launch landing page + waitlist Worker to Cloudflare on every push to main.
+# Needs two repository secrets: CLOUDFLARE_API_TOKEN (Workers + D1 edit) and CLOUDFLARE_ACCOUNT_ID.
+# Until they exist the job is skipped, so CI stays green.
+on:
+  push:
+    branches: [main]
+    paths:
+      - "apps/api/src/landing/**"
+      - "apps/api/src/worker.ts"
+      - "apps/api/d1/**"
+      - "apps/api/wrangler.jsonc"
+      - ".github/workflows/deploy-landing.yml"
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    if: ${{ vars.LANDING_DEPLOY_ENABLED == 'true' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter @sluicy/api landing:migrate
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      - run: pnpm --filter @sluicy/api landing:deploy
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
