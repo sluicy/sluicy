@@ -21,13 +21,15 @@ Read before changing behaviour:
 
 **Modules.** Organise by feature, not by layer. A module is one folder that holds everything for one concern: routes, page, styles, data access, tests. `apps/api/src/landing/` is the template: `routes.tsx`, `page.tsx`, `styles.ts`, `waitlist.ts` side by side. A new concern (links, collector, weekly page) gets its own folder in the same shape. A module exports one small surface from its index; other modules use that surface and nothing inside.
 
-**Co-location.** Put code next to the only code that uses it. A helper used by one route lives in that route's module. Promote to a shared package only when a second module needs it, and only then.
+**Co-location.** Put code next to the only code that uses it. A helper used by one route lives in that route's module. Promote to a shared place only when sharing is semantically justified: a second module needs the same rule and both must evolve together. Small local duplication beats a premature abstraction.
 
-**Simplicity.** Solve the case in front of you. Add abstraction, configuration, generics or indirection when a second concrete use exists, not before. Prefer a plain function over a class, a plain object over a builder, an inline expression over a one-line helper. When two implementations would work, choose the one with fewer moving parts.
+**Simplicity, YAGNI.** Solve the case in front of you. Add abstraction, configuration, generics or indirection when a second concrete use exists, not before. No speculative layers, generic frameworks or extensibility points. Prefer a plain function over a class, a plain object over a builder, an inline expression over a one-line helper. When two implementations would work, choose the one with fewer moving parts.
 
-**Single source of truth.** Each rule, constant, type and query lives in exactly one place. Before writing something, search for it; extend what exists. Types come from the Drizzle schema in `packages/db`, never hand-copied.
+**Single source of truth.** Each rule, constant, type and query lives in exactly one place. Before writing something, search for it; extend what exists. Consolidate only rules that are truly identical and must change together; two rules that merely look alike today stay separate. Types come from the Drizzle schema in `packages/db`, never hand-copied.
 
-**Naming.** Files and folders are lowercase-kebab, named after the domain term they hold. A reader should find the Weekly Page code by looking for `weekly-page`.
+**Functions and control flow.** Keep each function focused on one behaviour and name it for that behaviour, not for its parameters. Prefer early returns and flat control flow over nesting. Closed lists (Placement, Format, event kinds) are string literal unions; if a numeric enum is ever unavoidable, give every member an explicit value so stored values never depend on declaration order.
+
+**Naming and comments.** Files and folders are lowercase-kebab, named after the domain term they hold; a reader finds the Weekly Page code by looking for `weekly-page`. Variables and functions get short, descriptive names. When a name alone cannot carry the purpose, add a comment with the non-obvious behaviour or constraint. Comments say why a decision exists, never what the code already says. Exported functions and every method of an exported interface carry a JSDoc line stating what it does and any contract a caller could get wrong (single use, ordering, what is stored).
 
 ## Testing (backend: `apps/api`, `apps/worker`, `packages/*`)
 
