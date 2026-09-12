@@ -29,7 +29,7 @@ pnpm monorepo, TypeScript throughout.
 
 | Path | What |
 |---|---|
-| `apps/api` | Hono. Collector, link redirects, Stripe and Postiz webhooks, REST API, MCP server, server-rendered public pages. |
+| `apps/api` | Hono. Landing page and waitlist at `/`, collector, link redirects, Stripe and Postiz webhooks, REST API, MCP server, server-rendered public pages. All pages are Hono JSX rendered on the server. |
 | `apps/web` | Vite + React single-page app for the signed-in product. |
 | `apps/worker` | pg-boss jobs: reconciliation, Weekly Page generation, backfills, Postiz polling. No Redis. |
 | `packages/sdk` | The `sluicy` npm package: browser snippet, server route handler, Signup call. |
@@ -49,7 +49,9 @@ pnpm db:up          # Postgres in Docker
 pnpm dev            # api on :8787, web on :5173, worker
 ```
 
-Other scripts: `pnpm typecheck`, `pnpm build`, `pnpm --filter @sluicy/db db:generate`.
+Other scripts: `pnpm typecheck`, `pnpm build`, `pnpm --filter @sluicy/db db:generate` (new migration from the schema), `pnpm --filter @sluicy/db db:migrate` (apply migrations to `DATABASE_URL`).
+
+The landing page is served by the API at `http://localhost:8787/`. Its waitlist form writes to the `waitlist` table, so run the migration first; without a database the form explains that it is not connected.
 
 ## Self-hosting
 

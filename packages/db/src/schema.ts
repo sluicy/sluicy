@@ -72,3 +72,11 @@ export const revenueEvents = pgTable("revenue_events", {
   currency: text("currency").notNull(),
   occurredAt: timestamp("occurred_at", { withTimezone: true }).notNull(),
 });
+
+/** Pre-launch waitlist, written by the landing page at "/". Keyed by email so repeat signups do not duplicate. */
+export const waitlist = pgTable("waitlist", {
+  email: text("email").primaryKey(),
+  form: text("form"),
+  referrer: text("referrer"),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
