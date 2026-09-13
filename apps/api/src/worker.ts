@@ -3,7 +3,7 @@
 import { Hono } from "hono";
 import { createLanding } from "./landing/routes.js";
 
-type Env = { DB: D1Database };
+type Env = { DB: D1Database; APP_URL: string };
 
 const app = new Hono<{ Bindings: Env }>();
 
@@ -20,7 +20,7 @@ app.all("/*", async (c, next) => {
       console.error("waitlist insert failed", err);
       return { ok: false, message: "Couldn't save your spot. Give it a second and try again." };
     }
-  });
+  }, { appUrl: c.env.APP_URL });
   const res = await landing.fetch(c.req.raw, c.env, c.executionCtx);
   if (res.status === 404) return next();
   return res;

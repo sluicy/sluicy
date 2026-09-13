@@ -12,19 +12,28 @@
     "landing:migrate:local": "wrangler d1 migrations apply sluicy-waitlist --local",
     "landing:migrate": "wrangler d1 migrations apply sluicy-waitlist --remote",
     "landing:deploy": "wrangler deploy",
-    "landing:export": "wrangler d1 export sluicy-waitlist --remote --output waitlist-export.sql"
+    "landing:export": "wrangler d1 export sluicy-waitlist --remote --output waitlist-export.sql",
+    "test": "vitest run",
+    "openapi:export": "tsx scripts/openapi-export.ts"
   },
   "dependencies": {
     "@hono/node-server": "^1.19.3",
+    "@hono/zod-openapi": "^1.6.3",
     "@sluicy/db": "workspace:*",
     "@sluicy/storage": "workspace:*",
-    "hono": "^4.9.8"
+    "drizzle-orm": "^0.44.7",
+    "hono": "^4.9.8",
+    "nodemailer": "^10.0.9",
+    "postgres": "^3.4.9",
+    "zod": "^4.6.2"
   },
   "devDependencies": {
+    "@cloudflare/workers-types": "^4.20250906.0",
     "@types/node": "^24.5.2",
+    "@types/nodemailer": "^8.0.1",
     "tsx": "^4.20.5",
     "typescript": "^5.9.2",
-    "wrangler": "^4.38.0",
-    "@cloudflare/workers-types": "^4.20250906.0"
+    "vitest": "^5.0.0",
+    "wrangler": "^4.38.0"
   }
 }

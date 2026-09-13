@@ -16,3 +16,5 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm typecheck
       - run: pnpm build
+      # The committed OpenAPI document and the web client types must match the routes.
+      - run: pnpm api:schema && git diff --exit-code -- apps/api/openapi.json apps/web/src/api/schema.ts
