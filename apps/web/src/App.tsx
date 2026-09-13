@@ -1,5 +1,5 @@
 import { BrowserRouter, Route, Routes } from "react-router";
-import { RequireSession, SignInPage, VerifyPage } from "./auth/index.js";
+import { RequireSession, SignInPage, VerifyPage } from "@/auth";
 import { Home } from "./Home.js";
 
 export function App() {

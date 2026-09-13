@@ -9,3 +9,6 @@ dist/
 coverage/
 waitlist-export.sql
 .wrangler/
+
+*storybook.log
+storybook-static

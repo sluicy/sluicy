@@ -1,6 +1,12 @@
 import { useState, type FormEvent } from "react";
-import { Link, useSearchParams } from "react-router";
-import { api, type VerifyError } from "../api/client.js";
+import { useSearchParams } from "react-router";
+import { api, type VerifyError } from "@/api/client";
+import { Wordmark } from "@/components/wordmark";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 const verifyMessages: Record<VerifyError, string> = {
   invalid: "That link isn't valid. Request a new one.",
@@ -28,51 +34,61 @@ export function SignInPage() {
       : null;
 
   return (
-    <main className="auth">
-      <Link className="wordmark" to="/">Sluicy</Link>
-      <div className="auth-card">
+    <main className="flex min-h-screen flex-col items-center justify-center gap-7 p-6">
+      <Wordmark />
+      <Card className="w-full max-w-md">
         {signIn.isSuccess ? (
           <>
-            <h1>Check your email</h1>
-            <div className="auth-done" aria-live="polite">
-              If <strong>{email}</strong> can sign in, a link is on its way. It works once and expires in 15 minutes.
-            </div>
-            <p>
-              Wrong address?{" "}
-              <button type="button" className="link" onClick={() => signIn.reset()}>
-                Try another
-              </button>
-              .
-            </p>
+            <CardHeader>
+              <CardTitle className="font-heading text-2xl">Check your email</CardTitle>
+            </CardHeader>
+            <CardContent className="grid gap-4">
+              <Alert aria-live="polite">
+                <AlertDescription>
+                  If <strong className="text-foreground">{email}</strong> can sign in, a link is on its way. It works once and expires in 15 minutes.
+                </AlertDescription>
+              </Alert>
+              <p className="text-sm text-muted-foreground">
+                Wrong address?{" "}
+                <Button variant="link" className="h-auto p-0" onClick={() => signIn.reset()}>
+                  Try another
+                </Button>
+              </p>
+            </CardContent>
           </>
         ) : (
           <>
-            <h1>Sign in</h1>
-            <p>No password. We email you a link; the first sign-in creates your account.</p>
-            <form onSubmit={submit}>
-              <label htmlFor="email">Email</label>
-              <input
-                id="email"
-                type="email"
-                autoComplete="email"
-                autoFocus
-                required
-                placeholder="you@yourproduct.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-              />
-              <button className="btn" type="submit" disabled={signIn.isPending}>
-                {signIn.isPending ? "Sending…" : "Email me a sign-in link"}
-              </button>
-              {error ? (
-                <div className="auth-err" role="alert">
-                  {error}
-                </div>
-              ) : null}
-            </form>
+            <CardHeader>
+              <CardTitle className="font-heading text-2xl">Sign in</CardTitle>
+              <CardDescription>No password. We email you a link; the first sign-in creates your account.</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={submit} className="grid gap-3">
+                <Label htmlFor="email">Email</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  autoComplete="email"
+                  autoFocus
+                  required
+                  placeholder="you@yourproduct.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  aria-invalid={signIn.isError || undefined}
+                />
+                <Button type="submit" size="lg" disabled={signIn.isPending}>
+                  {signIn.isPending ? "Sending…" : "Email me a sign-in link"}
+                </Button>
+                {error ? (
+                  <Alert variant="destructive" role="alert">
+                    <AlertTitle>{error}</AlertTitle>
+                  </Alert>
+                ) : null}
+              </form>
+            </CardContent>
           </>
         )}
-      </div>
+      </Card>
     </main>
   );
 }

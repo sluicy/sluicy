@@ -1,7 +1,8 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router";
-import { api } from "../api/client.js";
+import { api } from "@/api/client";
+import { Spinner } from "@/components/ui/spinner";
 
 /** Landing spot for the emailed link. Consumes the token with a POST, then hands over to the app or back to sign-in. */
 export function VerifyPage() {
@@ -24,8 +25,10 @@ export function VerifyPage() {
   }, [token]);
 
   return (
-    <main className="auth">
-      <p aria-live="polite">Signing you in…</p>
+    <main className="flex min-h-screen items-center justify-center p-6">
+      <p className="flex items-center gap-2 text-muted-foreground" aria-live="polite">
+        <Spinner /> Signing you in…
+      </p>
     </main>
   );
 }

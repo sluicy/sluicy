@@ -32,6 +32,10 @@ Read before changing behaviour:
 
 **Naming and comments.** Files and folders are lowercase-kebab, named after the domain term they hold; a reader finds the Weekly Page code by looking for `weekly-page`. Variables and functions get short, descriptive names. When a name alone cannot carry the purpose, add a comment with the non-obvious behaviour or constraint. Comments say why a decision exists, never what the code already says. Exported functions and every method of an exported interface carry a JSDoc line stating what it does and any contract a caller could get wrong (single use, ordering, what is stored).
 
+## Web UI (`apps/web`)
+
+Tailwind v4 and shadcn (`components.json`, radix-nova preset). Primitives live in `src/components/ui/` and are added with `pnpm dlx shadcn@latest add <name>` from `apps/web`, never hand-written. Composed reusable components live in `src/components/`. Theme tokens are the CSS variables in `src/styles.css`; they mirror the landing palette and there is one theme, dark. Style with Tailwind classes on those tokens (`bg-primary`, `text-muted-foreground`); no ad-hoc hex values and no separate CSS files. Every reusable component has a story beside it (`<name>.stories.tsx`, `pnpm --filter @sluicy/web storybook`); page-level components do not. Import app code through the `@/` alias.
+
 ## Testing (backend: `apps/api`, `apps/worker`, `packages/*`)
 
 Test runner is Vitest, added to a package the first time it gets a test. Tests live beside the code they test as `<name>.test.ts`, inside the module.

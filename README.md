@@ -30,7 +30,7 @@ pnpm monorepo, TypeScript throughout.
 | Path | What |
 |---|---|
 | `apps/api` | Hono. Landing page and waitlist at `/`, collector, link redirects, Stripe and Postiz webhooks, REST API, MCP server, server-rendered public pages. All pages are Hono JSX rendered on the server. |
-| `apps/web` | Vite + React single-page app for the signed-in product. |
+| `apps/web` | Vite + React single-page app for the signed-in product. Tailwind and shadcn; Storybook for the reusable components (`pnpm --filter @sluicy/web storybook`). |
 | `apps/worker` | pg-boss jobs: reconciliation, Weekly Page generation, backfills, Postiz polling. No Redis. |
 | `packages/sdk` | The `sluicy` npm package: browser snippet, server route handler, Signup call. |
 | `packages/db` | Drizzle schema for accounts, products, pieces, links, users, revenue events. |

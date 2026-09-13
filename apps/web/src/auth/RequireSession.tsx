@@ -1,6 +1,6 @@
 import { createContext, useContext, type ReactNode } from "react";
 import { Navigate } from "react-router";
-import { api, type Account } from "../api/client.js";
+import { api, type Account } from "@/api/client";
 
 const AccountContext = createContext<Account | null>(null);
 

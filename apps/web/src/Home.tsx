@@ -1,7 +1,9 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router";
-import { api } from "./api/client.js";
-import { useAccount } from "./auth/index.js";
+import { api } from "@/api/client";
+import { useAccount } from "@/auth";
+import { Wordmark } from "@/components/wordmark";
+import { Button } from "@/components/ui/button";
 
 export function Home() {
   const account = useAccount();
@@ -15,20 +17,20 @@ export function Home() {
   });
 
   return (
-    <main className="page">
-      <header className="topbar">
-        <span className="wordmark">Sluicy</span>
-        <span className="who">
+    <main className="mx-auto max-w-3xl p-6">
+      <header className="mb-6 flex items-center justify-between gap-4 border-b pb-4">
+        <Wordmark />
+        <span className="flex items-center gap-3 text-sm text-muted-foreground">
           {account.email}
           {account.isOwner ? " · owner" : ""}
-          <button type="button" className="link" onClick={() => signOut.mutate({})} disabled={signOut.isPending}>
+          <Button variant="outline" size="sm" onClick={() => signOut.mutate({})} disabled={signOut.isPending}>
             Sign out
-          </button>
+          </Button>
         </span>
       </header>
       <p>Open-source growth analytics for content-led founders. Find the content that pays. Stop the rest.</p>
-      <p>
-        Next: the Ledger and the Weekly Page. See <code>SPEC.md</code>.
+      <p className="mt-2 text-muted-foreground">
+        Next: the Ledger and the Weekly Page. See <code className="font-mono text-sm">SPEC.md</code>.
       </p>
     </main>
   );
