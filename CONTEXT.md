@@ -86,6 +86,14 @@ _Avoid_: Digest, report, recommendations
 The angle, proven hook, call to action and evidence for one repeat or test. Never a drafted post.
 _Avoid_: Draft, template, prompt
 
+**Topic**:
+A model-normalized subject a Piece is about, such as "attribution" or "cold email". Per Product, the set of Topics being watched for Opportunities.
+_Avoid_: Keyword, tag, theme
+
+**Opportunity**:
+A live conversation on a Placement that matches a Topic the Product earns from, ranked by fit, activity, recency and the Topic's Cluster revenue, delivered with its Brief. Claiming it creates a Piece.
+_Avoid_: Lead, mention, alert, thread
+
 **Annotation**:
 A dated note on a Product, such as a launch or a spike, used to flag confounded weeks.
 _Avoid_: Event, marker, note

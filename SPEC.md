@@ -1,14 +1,14 @@
 # Sluicy — Product Spec
 
-Version 0.2, 2026-09-12. Owner: Tomáš. Supersedes v0.1 after the design review of the same date.
+Version 0.3, 2026-09-13. Owner: Tomáš. Supersedes v0.2. Change in v0.3: Opportunities (section 8.8) close the front of the loop; see [ADR 0004](./docs/adr/0004-opportunities-scan-conversations-not-competitors.md).
 
 Glossary: [CONTEXT.md](./CONTEXT.md). Decisions: [docs/adr](./docs/adr).
 
 ## 1. One-liner
 
-Growth analytics and a weekly planning loop for founders who market with content, not ads. The founder writes. Sluicy tracks every visit, every Piece of content and every Link to Signups, revenue and retention, learns what pays, plans next week, and schedules through the tools the founder already uses.
+Growth analytics and a weekly planning loop for founders who market with content, not ads. The founder writes. Sluicy tracks every visit, every Piece of content and every Link to Signups, revenue and retention, learns what pays, finds the conversations worth answering this week, plans, and schedules through the tools the founder already uses.
 
-**Result we sell:** stop wasting time on content and channels that do not pay.
+**Result we sell:** know where to post this week and which posts pay. Stop wasting time on the rest.
 
 **Principle:** the founder does what matters, the tool does the rest.
 
@@ -25,7 +25,7 @@ Existing tools fail them in specific ways:
 - Link tools (Dub) track clicks and conversions per link but stop at "which link," not "which kind of content, and should I make more of it."
 - AI content tools generate posts that platforms bury and readers ignore.
 
-Nobody closes the loop: publish, measure revenue, learn, decide, publish again.
+Nobody closes the loop: find where to post, publish, measure revenue, learn, decide, publish again. Measurement alone is a vitamin; the painkiller is the decision it drives, and the first decision every week is where to post.
 
 ## 3. Who it is for
 
@@ -52,6 +52,7 @@ Nobody closes the loop: publish, measure revenue, learn, decide, publish again.
 | Hosted MRR | $10,000 | 18 months from launch |
 | Activation | first attributed payment within 14 days of install | 60% of installs |
 | Loop engagement | Weekly Page opened or read via MCP | 50% of active Accounts each week |
+| Opportunity conversion | Opportunities answered per Account per week | median of 2 |
 | Attribution accuracy | revenue in Sluicy vs Stripe, per Product | within 2% |
 | Monthly churn | | under 7% |
 
@@ -64,17 +65,19 @@ Each milestone is usable on its own.
 1. **Web analytics and attribution core.** Script, collector, pageviews with URL, country and device, first and last Touch, Signup call, Stripe webhook and backfill, revenue and churn per Source, reconciliation.
 2. **Content Ledger.** Pieces, tagged Links, automatic attributes, the Ledger with charts and trends per Piece.
 3. **Weekly Page.** Earned, wasted, repeat, test, stop, with confidence. Web, email and MCP.
-4. **Public page and badge.** Opt-in per Product.
-5. **Postiz integration.** Auto-created Pieces and Links, Briefs pushed as drafts.
-6. **MCP server** with OAuth for agents and API keys for scripts.
-7. **Hosted billing** on usage tiers.
-8. **ClickHouse storage implementation** behind the storage interface.
+4. **Opportunities.** Live conversations on Reddit and Hacker News that match the topics the Product earns from, ranked, each with the Brief to answer it. In the app, on the Weekly Page and through MCP.
+5. **Public page and badge.** Opt-in per Product.
+6. **Postiz integration.** Auto-created Pieces and Links, Briefs pushed as drafts.
+7. **MCP server** with OAuth for agents and API keys for scripts.
+8. **Hosted billing** on usage tiers.
+9. **ClickHouse storage implementation** behind the storage interface.
 
 ### 6.2 Later
 
 - Cookieless tracking mode.
 - Pretty redirect Links on the founder's domain once the SDK route is installed (may land inside the MVP if cheap).
 - Typefully and Buffer integrations.
+- X and LinkedIn as Opportunity sources, once their API cost is justified by paying Accounts.
 - Polar and Lemon Squeezy payment providers.
 - Cross-Product anonymized benchmarks by niche and Format.
 - Team tier: seats, roles, agency view.
@@ -84,10 +87,10 @@ Each milestone is usable on its own.
 
 ### 6.3 Non-goals
 
-- A scheduler or any direct social platform publishing.
+- A scheduler or any direct social platform publishing. Integrations, never a scheduler of our own, at least through the initial release.
 - Product analytics, session replay, heatmaps, in-app funnels.
-- AI-written posts.
-- Competitor content scraping.
+- AI-written posts. The founder, or the founder's own agent through MCP, drafts; Sluicy never ships a drafting editor.
+- Competitor content scraping. Opportunities scan conversations for questions, never competitors' content or audiences.
 - Mobile app attribution.
 - Ad platform integrations.
 - A "where did you hear about us" survey. Dropped in the v0.2 review; can return as an optional component.
@@ -102,6 +105,7 @@ See [CONTEXT.md](./CONTEXT.md) for definitions. The relationships:
 - A **Signup** turns a Visitor into a **User**. A payment turns a User, or a pay-first buyer, into a **Customer**.
 - A **Piece** has a **Placement** and a **Format** and owns one or more **Links**. Pieces sharing Placement and Format form a **Cluster**.
 - The **Ledger** joins Pieces to Touches, Signups, Customers and revenue. The **Weekly Page** is generated from Clusters. A **Brief** is produced for each repeat and test.
+- An **Opportunity** is a live conversation on a Placement that matches a Topic the Product earns from. Answering one creates a Piece, so the answer is measured like anything else.
 
 ## 8. Feature specifications
 
@@ -158,11 +162,29 @@ Through the Postiz REST API and its publish webhook. The founder pastes a Postiz
 
 ### 8.6 MCP server
 
-Tools: `list_pieces`, `get_ledger`, `get_weekly_page`, `create_piece`, `create_link`, `push_brief`, `add_annotation`. Resources: the Weekly Page, the Ledger as CSV. Agents connect with OAuth 2.1 and dynamic client registration; scripts and the CLI use API keys. Both are per Account, scoped read or write, revocable in settings. A skill file for Claude Code, OpenClaw and Hermes runs the loop: read the Weekly Page, draft Briefs, push drafts, ask the human to approve. `npx sluicy init` installs the snippet and the SDK route in a Node project.
+Tools: `list_pieces`, `get_ledger`, `get_weekly_page`, `list_opportunities`, `claim_opportunity`, `create_piece`, `create_link`, `push_brief`, `add_annotation`. Resources: the Weekly Page, the Ledger as CSV. Agents connect with OAuth 2.1 and dynamic client registration; scripts and the CLI use API keys. Both are per Account, scoped read or write, revocable in settings. A skill file for Claude Code, OpenClaw and Hermes runs the loop: read the Weekly Page, draft Briefs, push drafts, ask the human to approve. `npx sluicy init` installs the snippet and the SDK route in a Node project.
 
 ### 8.7 Public page
 
 Opt-in per Product. Shows visits, Signups and revenue by Source and by top Pieces, with a badge linking to Sluicy. Real revenue shown by default with a switch to hide amounts. Rendered on the server so link previews on X and LinkedIn carry a title and image.
+
+### 8.8 Opportunities
+
+The front of the loop: where to post this week. Sluicy watches conversations and surfaces the ones worth answering, with the evidence for why.
+
+**Sources.** Reddit through the official Data API and Hacker News through the Algolia search API in v1. Both are polled by the worker; nothing is scraped. X and LinkedIn are later additions gated on API cost. Sources sit behind one interface so adding one never touches ranking or delivery.
+
+**What is watched.** Per Product, a set of Topics: seeded by the founder at setup from the Product's own description, then grown from the Topics of Pieces in Repeat and Test Clusters. The founder edits the set at any time. Per Topic the worker searches for new threads and questions, at most hourly, respecting each API's rate limits.
+
+**Ranking.** Each Opportunity scores on topic fit, thread activity in its first hours, recency, and the revenue of the Cluster the Topic belongs to. A conversation that matches a paying Cluster outranks one that matches a hunch. Opportunities older than 72 hours expire; late answers are buried on every platform.
+
+**Delivery.** A list in the app, a "This week, answer these" section on the Weekly Page with the top five, and the MCP tools `list_opportunities` and `claim_opportunity`. Each Opportunity carries the thread, the matching Topic with its numbers, and the Brief for that Cluster: the hook that worked, the CTA and the best three Pieces to draw from. The founder or their agent writes the answer.
+
+**Closing the loop.** Claiming an Opportunity creates a Piece with Placement, Format "answer", the Topic and a Link, and marks the Opportunity answered. From then on it is an ordinary Piece: clicks, Signups, revenue, retention, Cluster membership, Weekly Page. Dismissed Opportunities teach the ranking for that Product.
+
+**Cold start.** Works from day one on the founder's seeded Topics with no revenue data. Ranking by Cluster revenue switches on as Clusters earn.
+
+**Honesty.** Sluicy never posts, never drafts the body, never fabricates engagement. It names the source and the time of every Opportunity and says when a source is rate-limited or down.
 
 ## 9. Attribution honesty rules
 
@@ -217,6 +239,8 @@ Overage policy: warn, never cut off, ask to upgrade. No free hosted tier. Waitli
 | Event volume outgrows Postgres | Storage interface from day one; ClickHouse is milestone 8. |
 | Self-host support load | Community only, one Docker command, SMTP the only external requirement. |
 | Solo maintainer bandwidth | Non-goals enforced; integrations one at a time. |
+| Reddit or X change API terms or pricing | Official APIs only, sources behind one interface, Hacker News is always free, and the product stays useful with the Ledger and Weekly Page alone. |
+| Opportunities turn founders into spammers and platforms punish them | At most five per week on the Weekly Page, ranking favours fit over volume, every Opportunity ships with the evidence and the Brief, and the Weekly Page reports the Signup rate of answers so low-quality answering shows up as Wasted. |
 
 ## 14. Open questions
 
@@ -225,6 +249,8 @@ Overage policy: warn, never cut off, ask to upgrade. No free hosted tier. Waitli
 3. The row-count threshold that triggers the ClickHouse implementation for a given install.
 4. The exact usage tiers and visit boundaries above $19.
 5. Consent posture wording for EU founders using cookie mode.
+6. Reddit Data API access tier for a hosted service polling on behalf of many Accounts, and whether self-hosters bring their own Reddit app credentials.
+7. Whether X joins the Opportunity sources at launch given its API pricing.
 
 ## 15. Milestones
 
@@ -234,6 +260,7 @@ Overage policy: warn, never cut off, ask to upgrade. No free hosted tier. Waitli
 | M1 | Analytics and attribution core | Own product reconciles with Stripe within 2% for 14 days |
 | M2 | Content Ledger and Links | 30 days of own content in the Ledger |
 | M3 | Weekly Page | First Weekly Page published as an X article |
-| M4 | Public page, Postiz, MCP | Ten waitlist founders installed and reached first attributed Signup |
-| M5 | Hosted billing on usage tiers | First paying Account |
-| M6 | ClickHouse storage implementation | One Product above the threshold runs on it in production |
+| M4 | Opportunities on Reddit and Hacker News | Ten Opportunities answered on own product, at least one attributed Signup from an answer |
+| M5 | Public page, Postiz, MCP | Ten waitlist founders installed and reached first attributed Signup |
+| M6 | Hosted billing on usage tiers | First paying Account |
+| M7 | ClickHouse storage implementation | One Product above the threshold runs on it in production |

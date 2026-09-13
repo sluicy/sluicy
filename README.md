@@ -3,7 +3,7 @@
 **Open-source growth analytics for founders who market with content, not ads.**
 Find the content that pays. Stop the rest.
 
-You write. Sluicy tracks every visit, every piece of content and every link to signups, Stripe revenue and retention, learns what pays, plans next week, and pushes briefs into the scheduler you already use.
+You write. Sluicy tracks every visit, every piece of content and every link to signups, Stripe revenue and retention, learns what pays, finds the conversations worth answering this week, and pushes briefs into the scheduler you already use.
 
 > Status: pre-alpha. The spec is done, the code is a scaffold. Follow along or join the [waitlist](https://sluicy.dev).
 
@@ -15,7 +15,8 @@ Web analytics tell you where visitors came from. Schedulers tell you how many li
 2. **Measure** link → visit → signup → payment → retained revenue, reconciled against Stripe.
 3. **Learn** which placement and format convert, not per post but per cluster, with confidence stated.
 4. **Plan** a Weekly Page: what earned, what wasted effort, what to repeat, test and stop.
-5. **Write** the next piece yourself. That is the one step Sluicy never automates.
+5. **Find** where to post: live Reddit and Hacker News conversations that match the topics that pay, with the brief to answer them.
+6. **Write** the next piece yourself, or with your own agent over MCP. That is the one step Sluicy never automates.
 
 Read the full [product spec](./SPEC.md), the [glossary](./CONTEXT.md) and the [decision records](./docs/adr).
 
@@ -78,7 +79,7 @@ One `docker compose up` with Postgres included, first signup becomes the owner, 
 
 ## Roadmap
 
-Milestones from the spec, in order: attribution core with Stripe reconciliation → content ledger and links → Weekly Page → public page, Postiz and MCP → hosted billing → ClickHouse storage. Details in [SPEC.md](./SPEC.md#15-milestones).
+Milestones from the spec, in order: attribution core with Stripe reconciliation → content ledger and links → Weekly Page → Opportunities on Reddit and Hacker News → public page, Postiz and MCP → hosted billing → ClickHouse storage. Details in [SPEC.md](./SPEC.md#15-milestones).
 
 ## Contributing
 
