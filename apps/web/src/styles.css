@@ -5,8 +5,8 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-    --font-heading: "Syne", "Arial Black", Arial, sans-serif;
-    --font-sans: "Manrope", "Helvetica Neue", Arial, sans-serif;
+    --font-heading: "Geist", "Inter", "Helvetica Neue", Arial, sans-serif;
+    --font-sans: "Geist", "Inter", "Helvetica Neue", Arial, sans-serif;
     --font-mono: "JetBrains Mono", Menlo, Consolas, monospace;
     --color-sidebar-ring: var(--sidebar-ring);
     --color-sidebar-border: var(--sidebar-border);

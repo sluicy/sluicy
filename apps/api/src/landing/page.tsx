@@ -97,7 +97,7 @@ export const LandingPage: FC<{ state: WaitlistState; email?: string; appUrl: str
       <meta property="og:description" content="Open-source growth analytics for founders who market with content, not ads." />
       <meta property="og:type" content="website" />
       <link rel="preconnect" href="https://fonts.googleapis.com" />
-      <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" />
+      <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" />
       <style dangerouslySetInnerHTML={{ __html: landingCss }} />
     </head>
     <body>
@@ -122,7 +122,9 @@ export const LandingPage: FC<{ state: WaitlistState; email?: string; appUrl: str
           <Waitlist state={state} id="hero" email={email} />
         </section>
 
-        <section class="wrap sluice" id="how">
+        <div class="band" id="how">
+        <section class="wrap sluice">
+          <h2 class="section-title">How it works <span>every post, followed to the payment</span></h2>
           <div class="panel sluice-panel">
             <div class="sluice-grid">
               <div class="col">
@@ -165,8 +167,11 @@ export const LandingPage: FC<{ state: WaitlistState; email?: string; appUrl: str
             </div>
           </div>
         </section>
+        </div>
 
         <section class="wrap show">
+          <h2 class="section-title">What you get <span>a page, a link, an agent</span></h2>
+          <div class="show-grid">
           <div class="show-item">
             <div class="panel wp">
               <div class="wp-head"><span class="display">Week 37</span><span class="mono">41 pieces · 118 signups</span></div>
@@ -174,7 +179,7 @@ export const LandingPage: FC<{ state: WaitlistState; email?: string; appUrl: str
               <div class="wp-line"><span class="k" style="color:var(--accent)">TEST</span><span>One Substack issue a week</span><span class="c">2 so far</span></div>
               <div class="wp-line stop"><span class="k" style="color:var(--stop)">STOP</span><span>Feature announcements</span><span class="c">$0 in 30 days</span></div>
             </div>
-            <h2 class="display">Every Monday: repeat, test, stop.</h2>
+            <h3 class="display">Every Monday: repeat, test, stop.</h3>
             <p>One page. Numbers and confidence behind each call.</p>
           </div>
 
@@ -188,7 +193,7 @@ export const LandingPage: FC<{ state: WaitlistState; email?: string; appUrl: str
                 <div class="ui"><div class="mono">84%</div><span>kept 90d</span></div>
               </div>
             </div>
-            <h2 class="display">A link on your own domain.</h2>
+            <h3 class="display">A link on your own domain.</h3>
             <p>Reddit and X bury shorteners. Yours looks like a page on your site.</p>
           </div>
 
@@ -202,20 +207,21 @@ export const LandingPage: FC<{ state: WaitlistState; email?: string; appUrl: str
                 <div class="tool"><i class="reply"></i><span style="color:var(--ink)">Two briefs are waiting. You write the words.</span></div>
               </div>
             </div>
-            <h2 class="display">Your agent does the rest.</h2>
+            <h3 class="display">Your agent does the rest.</h3>
             <p>MCP server and a skill file. Briefs land in Postiz as drafts.</p>
+          </div>
           </div>
         </section>
 
-        <section class="wrap facts" id="facts">
-          <div class="rule"></div>
+        <div class="band" id="facts">
+        <section class="wrap facts">
           <div class="facts-grid">
             <div><h3 class="display">Open source</h3><p>AGPL, TypeScript, Postgres only. One command to self-host.</p></div>
             <div><h3 class="display">$19 a month</h3><p>Hosted, priced by visits. Warned, never cut off. Or free on your box.</p></div>
             <div><h3 class="display">Not a scheduler</h3><p>Plugs into Postiz, Typefully and Buffer. Never writes your post.</p></div>
           </div>
-          <div class="rule"></div>
         </section>
+        </div>
 
         <section class="wrap cta">
           <h2 class="display">Find the content that turns readers into customers.</h2>
