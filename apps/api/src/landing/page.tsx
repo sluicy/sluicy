@@ -14,6 +14,48 @@ const Logo: FC = () => (
   </svg>
 );
 
+/** Platform marks, one stroke weight, 16px. */
+const Icon: FC<{ name: "reddit" | "x" | "substack" | "linkedin" | "youtube" | "link" | "eye" | "user" | "card" }> = ({ name }) => {
+  const paths: Record<string, string> = {
+    reddit: "M12 4l1.2 3.1M13.2 7.1a1.4 1.4 0 1 0 2.8 0a1.4 1.4 0 1 0-2.8 0M4 13.5a8 4.5 0 1 0 16 0a8 4.5 0 1 0-16 0M9 13h.01M15 13h.01M9.5 16c1.5 1 3.5 1 5 0",
+    x: "M5 4l14 16M19 4L5 20",
+    substack: "M5 5h14M5 9.5h14M5 14h14v6l-7-3.5L5 20z",
+    linkedin: "M6 10v8M6 6.5v.01M11 18v-8M11 13.5c0-2 1.3-3.5 3.5-3.5S18 11.5 18 13.5V18",
+    youtube: "M3.5 8.5a3 3 0 0 1 3-3h11a3 3 0 0 1 3 3v7a3 3 0 0 1-3 3h-11a3 3 0 0 1-3-3zM10 9.5v5l4.5-2.5z",
+    link: "M10 14a4 4 0 0 0 5.7 0l2.8-2.8a4 4 0 0 0-5.7-5.7L11.5 6.8M14 10a4 4 0 0 0-5.7 0l-2.8 2.8a4 4 0 0 0 5.7 5.7l1.3-1.3",
+    eye: "M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6zM12 12m-2.5 0a2.5 2.5 0 1 0 5 0a2.5 2.5 0 1 0-5 0",
+    user: "M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM4.5 20a7.5 7.5 0 0 1 15 0",
+    card: "M3 7a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2zM3 10h18M7 15h4",
+  };
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d={paths[name]} />
+    </svg>
+  );
+};
+
+type Platform = "reddit" | "x" | "substack" | "linkedin" | "youtube";
+const platformName: Record<Platform, string> = { reddit: "r/SaaS", x: "X", substack: "Substack", linkedin: "LinkedIn", youtube: "YouTube" };
+
+/** A published Piece as it looks on its platform. `paid` marks the ones that turned into Customers. */
+const Post: FC<{ platform: Platform; author: string; text: string; meta: string; paid?: boolean }> = ({ platform, author, text, meta, paid }) => (
+  <div class={`post${paid ? " post-paid" : ""}`}>
+    <div class="post-head"><Icon name={platform} /><b>{author}</b><span>{platformName[platform]}</span></div>
+    <p>{text}</p>
+    <div class="post-meta">{meta}</div>
+  </div>
+);
+
+/** A Customer, shown as a person: initials, name, what they pay, and the Piece that brought them. */
+const Person: FC<{ initials: string; name: string; amount: string; from: Platform }> = ({ initials, name, amount, from }) => (
+  <div class="person">
+    <span class="avatar" data-from={from}>{initials}</span>
+    <span class="person-name">{name}</span>
+    <span class="person-from"><Icon name={from} /></span>
+    <span class="person-amt mono">{amount}</span>
+  </div>
+);
+
 const Arrow: FC = () => (
   <div class="arrow" aria-hidden="true">
     <svg width="40" height="24" viewBox="0 0 40 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -70,144 +112,107 @@ export const LandingPage: FC<{ state: WaitlistState; email?: string; appUrl: str
             <a href="https://github.com/sluicy/sluicy">GitHub</a>
             <a href="#facts">Pricing</a>
             <a class="nav-signin" href={`${appUrl}/sign-in`}>Sign in</a>
-            <a class="btn btn-accent" href="#join" style="height:42px">Get early access</a>
+            <a class="btn btn-accent btn-sm" href="#join">Get early access</a>
           </nav>
         </header>
 
         <section class="wrap hero" id="join">
-          <div class="label" style="display:flex;align-items:center;gap:10px">
-            <span class="dot"></span>Growth analytics for solo founders · open source
-          </div>
-          <h1 class="display">
-            Post a lot.<br />Keep what <span style="color:var(--accent)">pays.</span>
-          </h1>
-          <p>Sluicy sorts your content the way a sluice sorts a riverbed: every post, article and answer runs through it, and only the ones that turned into paying customers come out the other side.</p>
+          <h1 class="display">Post a lot. Keep what <span style="color:var(--accent)">pays.</span></h1>
+          <p>Open-source growth analytics for founders who market with content. Every post, article and answer, followed to the Stripe payment.</p>
           <Waitlist state={state} id="hero" email={email} />
         </section>
 
         <section class="wrap sluice" id="how">
           <div class="panel sluice-panel">
-            <div class="sluice-head">
-              <div class="label">What goes in · what comes out</div>
-              <div class="mono" style="font-size:12px;color:var(--dim)">example product · last 30 days</div>
-            </div>
             <div class="sluice-grid">
-              <div>
-                <div class="col-label">EVERYTHING YOU PUBLISHED</div>
-                <div class="pieces">
-                  <div class="piece"><b>How I got 400 users from one Reddit answer</b><span>X · article</span></div>
-                  <div class="piece"><b>We just shipped dark mode</b><span>LinkedIn · announcement</span></div>
-                  <div class="piece"><b>Reply in r/SaaS on tracking</b><span>Reddit · answer</span></div>
-                  <div class="piece"><b>Attribution in 10 minutes</b><span>YouTube · tutorial</span></div>
-                  <div class="piece"><b>MRR update, week 31</b><span>X · post</span></div>
-                  <div class="piece"><b>Cold email numbers, all of them</b><span>X · article</span></div>
+              <div class="col">
+                <div class="col-label"><Icon name="eye" />What you published</div>
+                <div class="posts">
+                  <Post platform="reddit" author="u/you" text="We tried 4 attribution tools before writing our own. Here is what each one got wrong…" meta="↑ 412 · 38 comments" paid />
+                  <Post platform="x" author="@you" text="How one Reddit answer brought us 400 users. Thread." meta="1.8k views · 24 reposts" paid />
+                  <Post platform="substack" author="Your newsletter" text="Issue 31: cold email numbers, all of them" meta="2,100 opens" paid />
+                  <Post platform="linkedin" author="You" text="We just shipped dark mode 🎉" meta="5,800 impressions" />
+                  <Post platform="youtube" author="Your channel" text="Attribution in 10 minutes" meta="960 views" />
                 </div>
               </div>
               <Arrow />
               <div class="box">
-                <div class="box-tag label">SLUICY</div>
-                <div class="steps">
-                  <div class="ui"><span>1 · LINK</span>One link per piece, on your domain</div>
-                  <div class="ui"><span>2 · VISIT</span>First and last touch, 30-day window</div>
-                  <div class="ui"><span>3 · SIGNUP</span>One call from your backend</div>
-                  <div class="ui"><span>4 · STRIPE</span>Payment, refund, churn, reconciled</div>
-                </div>
-                <div class="riffles"><i></i><span>riffles: placement × format</span></div>
+                <div class="box-tag"><Logo />Sluicy</div>
+                <ol class="flow">
+                  <li><Icon name="link" /><span>One link per post, on your domain</span></li>
+                  <li><Icon name="eye" /><span>Visit, first and last touch</span></li>
+                  <li><Icon name="user" /><span>Signup, one call from your backend</span></li>
+                  <li><Icon name="card" /><span>Stripe payment, refund, churn</span></li>
+                </ol>
+                <div class="riffles"><i></i></div>
               </div>
               <Arrow />
-              <div class="out">
-                <div class="col-label" style="color:var(--accent)">WHAT PAID</div>
-                <div class="out-card"><b>How I got 400 users from one Reddit answer</b><span>63 signups · $1,140</span></div>
-                <div class="out-card"><b>Reply in r/SaaS</b><span>21 signups · $399</span></div>
-                <div class="out-card"><b>Attribution in 10 minutes</b><span>14 signups · $95</span></div>
-                <div class="col-label" style="margin-top:6px">WHAT DIDN'T</div>
-                <div class="out-none">3 pieces · 4,100 visits · <span class="mono">$0</span></div>
+              <div class="col">
+                <div class="col-label accent"><Icon name="card" />Who paid · $1,634</div>
+                <div class="people">
+                  <Person initials="MK" name="Marta K." amount="$49/mo" from="reddit" />
+                  <Person initials="DP" name="Dev P." amount="$49/mo" from="reddit" />
+                  <Person initials="JL" name="Jonas L." amount="$19/mo" from="x" />
+                  <Person initials="AS" name="Aiko S." amount="$99/mo" from="reddit" />
+                  <Person initials="RB" name="Rui B." amount="$19/mo" from="substack" />
+                  <Person initials="TN" name="Tomás N." amount="$49/mo" from="x" />
+                </div>
+                <div class="nobody">
+                  <span class="ghosts" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>
+                  <span>LinkedIn and YouTube: 6,760 visits, nobody paid</span>
+                </div>
               </div>
             </div>
           </div>
         </section>
 
-        <section class="wrap rows">
-          <div class="row">
-            <div class="row-copy">
-              <div class="label">Every Monday</div>
-              <h2 class="display">Repeat. Test. Stop.</h2>
-              <p>Not a dashboard to stare at. One page that says what to do this week, with the numbers behind each call and how sure it is. When there is not enough data, it says that too.</p>
-            </div>
+        <section class="wrap show">
+          <div class="show-item">
             <div class="panel wp">
-              <div class="wp-head">
-                <div class="display" style="font-weight:700;font-size:18px">Week 37 · example product</div>
-                <div class="mono" style="font-size:12px;color:var(--dim)">41 pieces · 118 signups</div>
-              </div>
-              <div class="wp-line repeat"><span class="k">REPEAT</span><span>Tutorial articles on X. 4 of 4 earned.</span><span class="c">high confidence</span></div>
-              <div class="wp-line"><span class="k" style="color:var(--accent)">TEST</span><span>One Reddit answer a day. 2 pieces so far.</span><span class="c" style="color:var(--dim)">not enough data</span></div>
-              <div class="wp-line stop"><span class="k" style="color:var(--stop)">STOP</span><span>Feature announcements. 5,800 visits, $0 in 30 days.</span><span class="c">high confidence</span></div>
-              <div style="display:flex;gap:8px;margin-top:4px;flex-wrap:wrap">
-                <span class="chip chip-fill">Email</span><span class="chip chip-fill">MCP</span><span class="chip chip-fill">Postiz drafts</span>
-              </div>
+              <div class="wp-head"><span class="display">Week 37</span><span class="mono">41 pieces · 118 signups</span></div>
+              <div class="wp-line repeat"><span class="k">REPEAT</span><span>Reddit answers on attribution</span><span class="c">4 of 4 earned</span></div>
+              <div class="wp-line"><span class="k" style="color:var(--accent)">TEST</span><span>One Substack issue a week</span><span class="c">2 so far</span></div>
+              <div class="wp-line stop"><span class="k" style="color:var(--stop)">STOP</span><span>Feature announcements</span><span class="c">$0 in 30 days</span></div>
             </div>
+            <h2 class="display">Every Monday: repeat, test, stop.</h2>
+            <p>One page. Numbers and confidence behind each call.</p>
           </div>
 
-          <div class="row flip">
+          <div class="show-item">
             <div class="panel wp">
-              <div class="col-label">NEW PIECE</div>
-              <div style="font-size:16px;font-weight:600">How I got 400 users from one Reddit answer</div>
-              <div style="display:flex;gap:8px;flex-wrap:wrap">
-                <span class="chip chip-line">X · article</span><span class="chip chip-line">tutorial</span><span class="chip chip-line">hook: real number</span><span class="chip chip-fill">tagged automatically</span>
-              </div>
-              <div class="ui" style="padding:16px 18px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
-                <div class="mono" style="font-size:15px">yourproduct.com<span style="color:var(--accent)">/go/reddit-attribution</span></div>
-                <span class="chip chip-accent" style="height:30px">Copy link</span>
-              </div>
+              <div class="linkbar mono">yourproduct.com<span style="color:var(--accent)">/go/reddit-attribution</span></div>
               <div class="stats">
-                <div class="ui"><div class="mono" style="font-size:20px">1,842</div><span>clicks</span></div>
-                <div class="ui"><div class="mono" style="font-size:20px">63</div><span>signups</span></div>
-                <div class="ui"><div class="mono" style="font-size:20px;color:var(--accent)">$1,140</div><span>revenue</span></div>
-                <div class="ui"><div class="mono" style="font-size:20px">84%</div><span>kept after 90d</span></div>
+                <div class="ui"><div class="mono">1,842</div><span>clicks</span></div>
+                <div class="ui"><div class="mono">63</div><span>signups</span></div>
+                <div class="ui"><div class="mono" style="color:var(--accent)">$1,140</div><span>revenue</span></div>
+                <div class="ui"><div class="mono">84%</div><span>kept 90d</span></div>
               </div>
             </div>
-            <div class="row-copy">
-              <div class="label">Per piece, not per platform</div>
-              <h2 class="display">A link that lives on your domain.</h2>
-              <p>Reddit and X bury shortener domains. Sluicy links look like a page on your site, land anywhere you choose, and carry the piece all the way to the Stripe payment and whether that customer stayed.</p>
-            </div>
+            <h2 class="display">A link on your own domain.</h2>
+            <p>Reddit and X bury shorteners. Yours looks like a page on your site.</p>
           </div>
 
-          <div class="row">
-            <div class="row-copy">
-              <div class="label">Agent-native</div>
-              <h2 class="display">Your agent does the rest.</h2>
-              <p>An MCP server and a skill file. Claude Code, OpenClaw or Hermes reads the ledger, writes the briefs and drops them into Postiz as drafts. You keep the twenty minutes that matter: writing.</p>
-            </div>
+          <div class="show-item">
             <div class="term">
-              <div class="term-bar">
-                <div class="lights" aria-hidden="true"><i></i><i></i><i></i></div>
-                <div>claude · ~/yourproduct</div>
-                <div>sluicy mcp · connected</div>
-              </div>
+              <div class="term-bar"><div class="lights" aria-hidden="true"><i></i><i></i><i></i></div><div>claude · sluicy mcp</div></div>
               <div class="term-body">
                 <div style="color:var(--ink)"><span style="color:var(--accent)">{">"}</span> what should I post this week?</div>
-                <div>
-                  <div class="tool"><i></i><span style="color:var(--ink)">sluicy · get_weekly_page</span><span style="color:var(--dim)">(product: "yourproduct")</span></div>
-                  <div class="tool-out">{"└ Repeat · tutorial articles on X · 4/4 earned · $1,634\n  Test · one Reddit answer a day · 2 pieces so far\n  Stop · announcements · 5,800 visits · $0"}</div>
-                </div>
-                <div>
-                  <div class="tool"><i></i><span style="color:var(--ink)">sluicy · push_brief</span><span style="color:var(--dim)">(scheduler: "postiz", briefs: 2)</span></div>
-                  <div class="tool-out">└ 2 drafts created</div>
-                </div>
-                <div class="tool"><i class="reply"></i><span style="color:var(--ink)">Two briefs are waiting in Postiz. You write the words, I did the rest.</span></div>
-                <div class="term-foot"><span><span style="color:var(--accent)">{">"}</span> _</span><span>? for shortcuts</span></div>
+                <div class="tool"><i></i><span>get_weekly_page</span></div>
+                <div class="tool"><i></i><span>push_brief</span><span style="color:var(--dim)">postiz · 2 drafts</span></div>
+                <div class="tool"><i class="reply"></i><span style="color:var(--ink)">Two briefs are waiting. You write the words.</span></div>
               </div>
             </div>
+            <h2 class="display">Your agent does the rest.</h2>
+            <p>MCP server and a skill file. Briefs land in Postiz as drafts.</p>
           </div>
         </section>
 
         <section class="wrap facts" id="facts">
           <div class="rule"></div>
           <div class="facts-grid">
-            <div><h3 class="display">Open source</h3><p>AGPL, TypeScript, Postgres only. One command to self-host. Your data stays on your server.</p></div>
-            <div><h3 class="display">$19 a month</h3><p>Hosted, unlimited products, priced by visits with a warning and never a cut-off. Or free, on your own box.</p></div>
-            <div><h3 class="display">Not a scheduler</h3><p>Postiz, Typefully and Buffer exist. Sluicy plugs into them. It will never write your post either.</p></div>
+            <div><h3 class="display">Open source</h3><p>AGPL, TypeScript, Postgres only. One command to self-host.</p></div>
+            <div><h3 class="display">$19 a month</h3><p>Hosted, priced by visits. Warned, never cut off. Or free on your box.</p></div>
+            <div><h3 class="display">Not a scheduler</h3><p>Plugs into Postiz, Typefully and Buffer. Never writes your post.</p></div>
           </div>
           <div class="rule"></div>
         </section>
