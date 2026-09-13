@@ -50,6 +50,7 @@ Nobody closes the loop: find where to post, publish, measure revenue, learn, dec
 | Goal | Target | Horizon |
 |---|---|---|
 | Hosted MRR | $10,000 | 18 months from launch |
+| Time to first value | first Opportunity shown after creating a Product | under 5 minutes, no install |
 | Activation | first attributed payment within 14 days of install | 60% of installs |
 | Loop engagement | Weekly Page opened or read via MCP | 50% of active Accounts each week |
 | Opportunity conversion | Opportunities answered per Account per week | median of 2 |
@@ -63,9 +64,9 @@ Nobody closes the loop: find where to post, publish, measure revenue, learn, dec
 Each milestone is usable on its own.
 
 1. **Web analytics and attribution core.** Script, collector, pageviews with URL, country and device, first and last Touch, Signup call, Stripe webhook and backfill, revenue and churn per Source, reconciliation.
-2. **Content Ledger.** Pieces, tagged Links, automatic attributes, the Ledger with charts and trends per Piece.
-3. **Weekly Page.** Earned, wasted, repeat, test, stop, with confidence. Web, email and MCP.
-4. **Opportunities.** Live conversations on Reddit and Hacker News that match the topics the Product earns from, ranked, each with the Brief to answer it. In the app, on the Weekly Page and through MCP.
+2. **Opportunities.** Live conversations on Reddit and Hacker News that match the Product's Topics, ranked, each with the Brief to answer it. The front door: works with nothing installed, and is the first thing a new Account sees.
+3. **Content Ledger.** Pieces, tagged Links, automatic attributes, the Ledger with charts and trends per Piece. Answered Opportunities are its first rows.
+4. **Weekly Page.** Earned, wasted, repeat, test, stop, with confidence, and the week's Opportunities. Web, email and MCP.
 5. **Public page and badge.** Opt-in per Product.
 6. **Postiz integration.** Auto-created Pieces and Links, Briefs pushed as drafts.
 7. **MCP server** with OAuth for agents and API keys for scripts.
@@ -182,7 +183,7 @@ The front of the loop: where to post this week. Sluicy watches conversations and
 
 **Closing the loop.** Claiming an Opportunity creates a Piece with Placement, Format "answer", the Topic and a Link, and marks the Opportunity answered. From then on it is an ordinary Piece: clicks, Signups, revenue, retention, Cluster membership, Weekly Page. Dismissed Opportunities teach the ranking for that Product.
 
-**Cold start.** Works from day one on the founder's seeded Topics with no revenue data. Ranking by Cluster revenue switches on as Clusters earn.
+**Onboarding order.** Opportunities are the front door of the product. A new Account creates a Product, enters a description and a few Topics, and sees Opportunities within five minutes with nothing installed. Ranking runs on topic fit, activity and recency. Installing the snippet and connecting Stripe is offered inside the product as "make these rankings use your revenue," and once Clusters earn, Cluster revenue joins the ranking. Activation is still the first attributed payment; time to first value is the first Opportunity.
 
 **Honesty.** Sluicy never posts, never drafts the body, never fabricates engagement. It names the source and the time of every Opportunity and says when a source is rate-limited or down.
 
@@ -258,9 +259,9 @@ Overage policy: warn, never cut off, ask to upgrade. No free hosted tier. Waitli
 |---|---|---|
 | M0 | Manual loop on own product for one month in a spreadsheet | The weekly plan changed at least one posting decision |
 | M1 | Analytics and attribution core | Own product reconciles with Stripe within 2% for 14 days |
-| M2 | Content Ledger and Links | 30 days of own content in the Ledger |
-| M3 | Weekly Page | First Weekly Page published as an X article |
-| M4 | Opportunities on Reddit and Hacker News | Ten Opportunities answered on own product, at least one attributed Signup from an answer |
+| M2 | Opportunities on Reddit and Hacker News | Ten waitlist founders see their first Opportunity within five minutes; ten answered on own product |
+| M3 | Content Ledger and Links | 30 days of own content in the Ledger, answered Opportunities included |
+| M4 | Weekly Page | First Weekly Page published as an X article |
 | M5 | Public page, Postiz, MCP | Ten waitlist founders installed and reached first attributed Signup |
 | M6 | Hosted billing on usage tiers | First paying Account |
 | M7 | ClickHouse storage implementation | One Product above the threshold runs on it in production |

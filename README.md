@@ -79,7 +79,7 @@ One `docker compose up` with Postgres included, first signup becomes the owner, 
 
 ## Roadmap
 
-Milestones from the spec, in order: attribution core with Stripe reconciliation → content ledger and links → Weekly Page → Opportunities on Reddit and Hacker News → public page, Postiz and MCP → hosted billing → ClickHouse storage. Details in [SPEC.md](./SPEC.md#15-milestones).
+Milestones from the spec, in order: attribution core with Stripe reconciliation → Opportunities on Reddit and Hacker News → content ledger and links → Weekly Page → public page, Postiz and MCP → hosted billing → ClickHouse storage. Details in [SPEC.md](./SPEC.md#15-milestones).
 
 ## Contributing
 
